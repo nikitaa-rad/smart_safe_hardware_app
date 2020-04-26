@@ -6,12 +6,14 @@ GEM
     pry (0.12.2)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
+    rpi_gpio (0.3.3)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   pry
+  rpi_gpio
 
 BUNDLED WITH
    2.0.1
