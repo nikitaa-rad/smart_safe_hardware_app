@@ -1,13 +1,15 @@
-require 'net/http'
-require 'pry'
+require 'states_service'
+require 'gpio_controller'
 
 class Safe
-  attr_reader :state_id, :initial_uri, :locked
+  SLEEP_DURATION = 4
 
-  def initialize(initial_uri:, state_id:)
+  attr_reader :state_id, :initial_uri, :pin_num
+
+  def initialize(initial_uri:, state_id:, pin_num:)
     @initial_uri = initial_uri
     @state_id = state_id
-    @locked = false
+    @pin_num = pin_num
   end
 
   def self.run(*args)
@@ -16,33 +18,25 @@ class Safe
 
   def run
     while true do
-      state = get_state
+      state = StatesService.call(initial_uri: initial_uri)
 
-      write_state(state)
+      set_state(state)
 
-      sleep 1
+      sleep SLEEP_DURATION
     end
   end
 
   private
 
-  def get_state
-    res = Net::HTTP.get(uri)
-
-    state = JSON.parse(res)
-
-    @locked = state['locked']
+  def gpio_controller
+    @gpio_controller ||= GpioController.new(pin_num: pin_num)
   end
 
-  def write_state(state)
-    open('locked.txt', 'w') { |f|
-      f.puts state
-    }
-  end
+  def set_state(state)
+    gpio_controller.set_low
 
-  def uri
-    @uri ||= URI(initial_uri + state_id.to_s)
+    gpio_controller.set_high if state
   end
 end
 
-Safe.run(initial_uri: 'http://localhost:3000/states/', state_id: 1)
+Safe.run(initial_uri: 'http://localhost:3000/states/', state_id: 1, pin_num: 22)

@@ -1,3 +1,5 @@
+require 'rpi_gpio'
+
 class GpioController
   attr_reader :pin_num
 
@@ -9,11 +11,15 @@ class GpioController
   end
 
   def set_high
-    gpio.set_high pin_num
+    gpio.set_high pin_num if gpio.low? pin_num
   end
 
   def set_low
-    gpio.set_low pin_num
+    gpio.set_low pin_num if gpio.high? pin_num
+  end
+
+  def clean_up
+    gpio.clean_up
   end
 
   private
@@ -27,15 +33,6 @@ class GpioController
   end
 
   def setup_signal
-    # RPi::GPIO.setup PIN_NUM, :as => :output, :initialize => :high
     gpio.setup pin_num, as: :output
   end
 end
-
-gpio_controller = GpioController.new(22)
-
-gpio_controller.set_high
-
-sleep 5
-
-gpio_controller.set_low
