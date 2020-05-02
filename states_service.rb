@@ -1,6 +1,9 @@
 require 'net/http'
+require_relative 'environment.rb'
 
 class StatesService
+  include Environment
+
   SECRET_KEY = 'secret_key'
 
   def initialize(initial_uri:)
@@ -8,7 +11,7 @@ class StatesService
   end
 
   def self.call(*args)
-    new(*args).run
+    new(*args).call
   end
 
   def call
@@ -33,3 +36,5 @@ class StatesService
     @uri ||= URI(initial_uri)
   end
 end
+
+StatesService.call(initial_uri: 'test')
