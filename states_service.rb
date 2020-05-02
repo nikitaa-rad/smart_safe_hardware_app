@@ -1,40 +1,43 @@
 require 'net/http'
-require_relative 'environment.rb'
+require 'json'
+
+require_relative 'environment'
+require_relative 'system_data_loader'
 
 class StatesService
   include Environment
+  include SystemDataLoader
 
-  SECRET_KEY = 'secret_key'
-
-  def initialize(initial_uri:)
-    @initial_uri = initial_uri
-  end
-
-  def self.call(*args)
-    new(*args).call
+  def self.call
+    new.call
   end
 
   def call
     response = get_state
 
-    parse_state(response)
+    state = parse_state(response.body)
+
+    state
   end
 
   private
 
   def get_state
-    Net::HTTP.post_form(uri, secret_key: SECRET_KEY)
+    http = Net::HTTP.new(uri.host, uri.port)
+
+    request = Net::HTTP::Get.new(uri.request_uri)
+    request['Secret-Key'] = secret_key
+
+    http.request(request)
   end
 
-  def parse_state(response)
-    state = JSON.parse(response)
+  def parse_state(body)
+    state = JSON.parse(body)
 
     state['locked']
   end
 
   def uri
-    @uri ||= URI(initial_uri)
+    @uri ||= URI.parse("#{initial_uri}/#{box_id}")
   end
 end
-
-StatesService.call(initial_uri: 'test')

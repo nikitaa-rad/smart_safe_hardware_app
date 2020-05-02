@@ -1,12 +1,12 @@
 module Environment
   @@env = ARGV[0]
 
-  URI = {
-    'development' => 'http://localhost:3003',
+  INITIAL_URI = {
+    'development' => 'http://localhost:3003/boxes',
     'production' => 'prod_uri'
   }
 
   def initial_uri
-    URI[@@env]
+    INITIAL_URI[@@env]
   end
 end
