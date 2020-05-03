@@ -2,7 +2,7 @@ module Environment
   @@env = ARGV[0]
 
   INITIAL_URI = {
-    'development' => 'http://localhost:3003/boxes',
+    'development' => 'http://192.168.0.100:3003/boxes',
     'production' => 'prod_uri'
   }
 
